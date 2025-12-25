@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream Pro | Kaveen Chamodya</title>
+    
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <link href="https://unpkg.com/@videojs/themes@1.0.1/city/index.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #00f2fe;
+            --secondary-color: #4facfe;
+            --bg-dark: #080a0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg-dark);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999;
+        }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 5px solid rgba(0, 242, 254, 0.1);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s infinite;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .main-wrapper {
+            width: 95%;
+            max-width: 1100px;
+            display: none; 
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .player-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-js {
+            width: 100%;
+            height: 480px;
+            border-radius: 12px;
+        }
+
+        .channel-container {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        h3 {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin: 25px 0 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 12px;
+        }
+
+        .channel-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .channel-card:hover {
+            background: rgba(0, 242, 254, 0.15);
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .channel-card.active {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        .lock-icon {
+            font-size: 12px;
+            margin-right: 6px;
+        }
+
+        .channel-container::-webkit-scrollbar { width: 5px; }
+        .channel-container::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+
+        .footer-note {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            padding-bottom: 20px;
+        }
+        .dev-name span { color: var(--primary-color); font-weight: 600; }
+
+        @media (max-width: 768px) { .video-js { height: 260px; } }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loading-text" id="status-text" style="margin-top: 20px; color: var(--primary-color);">Initializing HD Stream...</div>
+    </div>
+
+    <div class="main-wrapper" id="player-ui">
+        <div class="player-section">
+            <video id="my-video" class="video-js vjs-theme-city vjs-big-play-centered" controls preload="auto">
+                <p class="vjs-no-js">JavaScript required.</p>
+            </video>
+        </div>
+
+        <div class="channel-container">
+            <h3>Entertainment</h3>
+            <div class="channel-grid">
+                <div class="channel-card active" onclick="changeChannel(this, 'https://tvsen6.aynaott.com/ColorsHD/index.m3u8')">COLORS HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen6.aynaott.com/ColorsBangla/index.m3u8')">COLORS BANGLA</div>
+            </div>
+
+            <h3>Sports</h3>
+            <div class="channel-grid">
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/star-sports-1-hd/index.m3u8?token=79b011dc5a02aa735cb474305cefd5d1c4eed1b0-0f7ffbfbe249c41e8d229a7f629d5a19-1766697242-1766686442')">STAR SPORT 1 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/sony-sports-1-hd/index.m3u8?token=49e6969daea8942c89b02e0f78b2e923a724f216-21da9dbba8198f5254c9015102dc571f-1766697241-1766686441')">SONY TEN 1 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/sony-sports-3-hd/index.m3u8?token=9966b52941a483343517c33567c4f63ab405a1ba-22df27b77b2ba28db010720280a87fe8-1766697242-1766686442')">SONY TEN 3 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/sony-sports-5-hd/index.m3u8?token=c11e238fcc50999b01a6fca954b39d2c8d916f9b-7139cda5e391d46bb1f52dff694ea7ba-1766697241-1766686441')">SONY TEN 5 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/tsports/index.m3u8?token=41162b32874f75fb8d9ba3a7ed61c53a7be9b818-d3ea9b807cd3f13cd6150a1fa726dec4-1766697241-1766686441')">T SPORT [ 2 ]</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/edge2/ptv/index.m3u8?token=65f9c24f77223bc4805252a733968ccaaaded75e-3648a66f4be891de056d005dfbfc00a9-1766697242-1766686442')">PTV SPORT [ 2 ]</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://live-en.aisports.cc/moviebox/device01/playlist.m3u8')">
+                    <span class="lock-icon">🔒</span> JIO HOTSTAR
+                </div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen5.aynaott.com/PtvSports/index.m3u8')">PTV SPORTS</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen5.aynaott.com/willowhd/index.m3u8')">WILLOW CRICKET HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/toffee/ten_cricket/index.m3u8?token=3eb1fc3dd96f69e581fe9f5571f8405ff5040772-2c8ede7d18b28b3ff2bfeb4973d9c6c0-1766697242-1766686442')">TEN CRICKET</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen5.aynaott.com/cXPB2LKkErN9/index.m3u8')">STAR SPORT 2 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen7.aynaott.com/ssps2hd/index.m3u8')">STAR SPORT SELECT 2 HD</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen6.aynaott.com/asports/index.m3u8')">A SPORTS</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://tvsen7.aynaott.com/tsportshd/index.m3u8')">T SPORTS HD</div>
+            </div>
+
+            <h3>Discovery & Nature</h3>
+            <div class="channel-grid">
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/toffee/animal_planet_hd/index.m3u8?token=7746a059ad10ea8968511ca0958e46ca2e0e3963-495e0b3269ade5d89208d6e21ef06abf-1766697242-1766686442')">ANIMAL PLANET HD</div>
+            </div>
+
+            <h3>Kids</h3>
+            <div class="channel-grid">
+                <div class="channel-card" onclick="changeChannel(this, 'https://tplay.live/playlist/kids/motu-patlu/index.m3u8')">MOTU PATLU</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/toffee/pogo_sd/index.m3u8?token=51d50e696fa7c917a5eec4a4f931f874b7c506b4-3f7c94c0b30e6068792c53d46770da65-1766697242-1766686442')">POGO TV</div>
+                <div class="channel-card" onclick="changeChannel(this, 'https://edge2.roarzone.info:8443/roarzone/bk/55/index.m3u8?token=ddd294880254d07d4a57a22f5b0fee3ea14c85f3-05f88547efd8ec1baf57ef9e1c295b94-1766697242-1766686442')">NICKELODEON (NICK)</div>
+            </div>
+        </div>
+
+        <footer class="footer-note">
+            <p>&copy; 2025 All Rights Reserved</p>
+            <p class="dev-name">Powered By <span>Kaveen Chamodya</span></p>
+        </footer>
+    </div>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script>
+        var player = videojs('my-video', {
+            html5: { vhs: { overrideNative: true, enableLowInitialPlaylist: false } },
+            fluid: true
+        });
+
+        const defaultStream = "https://tvsen6.aynaott.com/ColorsHD/index.m3u8";
+
+        function changeChannel(element, url) {
+            document.querySelectorAll('.channel-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            player.src({ src: url, type: 'application/x-mpegURL' });
+            player.play();
+        }
+
+        window.onload = function() {
+            player.src({ src: defaultStream, type: 'application/x-mpegURL' });
+            setTimeout(() => {
+                document.getElementById('status-text').innerText = "System Ready!";
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('player-ui').style.display = 'flex';
+                }, 800);
+            }, 3000);
+        };
+    </script>
+</body>
+</html>
